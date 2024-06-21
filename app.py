@@ -14,18 +14,25 @@ st.set_page_config(
 )
 
 # Koneksi ke database menggunakan secrets
-mysql_secrets = st.secrets["mysql"]
-db_connection_str = (
-    f"{mysql_secrets['dialect']}+{mysql_secrets['driver']}://"
-    f"{mysql_secrets['DB_USER']}:{mysql_secrets['DB_PASSWORD']}@"
-    f"{mysql_secrets['DB_HOST']}:{mysql_secrets['DB_PORT']}/"
-    f"{mysql_secrets['DB_NAME']}"
-)
-db_connection = create_engine(db_connection_str)
+try:
+    mysql_secrets = st.secrets["mysql"]
+    db_connection_str = (
+        f"{mysql_secrets['dialect']}+{mysql_secrets['driver']}://"
+        f"{mysql_secrets['DB_USER']}:{mysql_secrets['DB_PASSWORD']}@"
+        f"{mysql_secrets['DB_HOST']}:{mysql_secrets['DB_PORT']}/"
+        f"{mysql_secrets['DB_NAME']}"
+    )
+    db_connection = create_engine(db_connection_str)
+except Exception as e:
+    st.error(f"Error connecting to the database: {e}")
 
 # Fungsi untuk mengambil data dari database
 def get_data(query):
-    return pd.read_sql(query, db_connection)
+    try:
+        return pd.read_sql(query, db_connection)
+    except Exception as e:
+        st.error(f"Error executing query: {e}")
+        return pd.DataFrame()
 
 #  Query untuk data perbandingan (comparison)
 query_comparison = """
