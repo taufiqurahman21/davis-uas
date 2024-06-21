@@ -14,6 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+
 # Ambil informasi dari secrets
 try:
     conn = mysql.connector.connect(
@@ -21,18 +22,24 @@ try:
         port=st.secrets["DB_PORT"],
         user=st.secrets["DB_USER"],
         passwd=st.secrets["DB_PASSWORD"],
-        database=st.secrets["DB_NAME"]  # perbaiki ke 'database' daripada 'db'
+        database=st.secrets["DB_NAME"]
     )
-    # Simpan koneksi sebagai variabel global
-    db_connection = conn
+    db_connection = conn  # Save the connection globally
+except mysql.connector.Error as err:
+    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        st.error("Error: Access denied. Check your username and password.")
+    elif err.errno == errorcode.ER_BAD_DB_ERROR:
+        st.error("Error: Database does not exist.")
+    else:
+        st.error(f"Error: {err}")
 except Exception as e:
-    print(f"Error connecting to the database or executing query: {str(e)}")
+    st.error(f"Error connecting to the database: {e}")
+    raise e  # Raise the exception to see detailed error message
 finally:
-    # Periksa apakah koneksi ada sebelum menutup
     if 'db_connection' in locals() or 'db_connection' in globals():
-        db_connection.close()  # pastikan untuk selalu menutup koneksi setelah selesai
+        db_connection.close()  # Always close the connection after using
 
-# Fungsi untuk mengambil data dari database
+# Function to fetch data from database
 def get_data(query):
     try:
         return pd.read_sql(query, db_connection)
