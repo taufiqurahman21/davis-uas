@@ -14,8 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-
-# Ambil informasi dari secrets
 try:
     conn = mysql.connector.connect(
         host=st.secrets["DB_HOST"],
@@ -35,6 +33,7 @@ except mysql.connector.Error as err:
 except Exception as e:
     st.error(f"Error connecting to the database: {e}")
     raise e  # Raise the exception to see detailed error message
+
 finally:
     if 'db_connection' in locals() or 'db_connection' in globals():
         db_connection.close()  # Always close the connection after using
