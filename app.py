@@ -1,3 +1,4 @@
+from errno import errorcode
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -35,7 +36,7 @@ except Exception as e:
     raise e  # Raise the exception to see detailed error message
 
 finally:
-    if 'db_connection' in locals() or 'db_connection' in globals():
+    if db_connection in locals() or db_connection in globals():
         db_connection.close()  # Always close the connection after using
 
 # Function to fetch data from database
