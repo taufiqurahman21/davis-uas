@@ -14,6 +14,9 @@ st.set_page_config(
 )
 
 # Ambil informasi dari secrets
+mysql_secrets = st.secrets["mysql"]
+
+# Ambil informasi dari secrets
 DB_HOST = mysql_secrets["DB_HOST"]
 DB_PORT = mysql_secrets["DB_PORT"]
 DB_USER = mysql_secrets["DB_USER"]
