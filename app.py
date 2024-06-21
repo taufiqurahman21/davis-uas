@@ -13,8 +13,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Koneksi ke database
-db_connection_str = 'mysql+mysqlconnector://DB_USER:DB_PASSWORD@DB_HOST/DB_NAME'
+# Koneksi ke database menggunakan secrets
+mysql_secrets = st.secrets["mysql"]
+db_connection_str = (
+    f"{mysql_secrets['dialect']}+{mysql_secrets['driver']}://"
+    f"{mysql_secrets['DB_USER']}:{mysql_secrets['DB_PASSWORD']}@"
+    f"{mysql_secrets['DB_HOST']}:{mysql_secrets['DB_PORT']}/"
+    f"{mysql_secrets['DB_NAME']}"
+)
 db_connection = create_engine(db_connection_str)
 
 # Fungsi untuk mengambil data dari database
