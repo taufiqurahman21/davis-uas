@@ -13,9 +13,19 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Debugging steps
+try:
+    st.write("Attempting to load secrets...")
+    mysql_secrets = st.secrets["mysql"]
+    st.write("Secrets loaded successfully!")
+    st.write(mysql_secrets)
+except KeyError:
+    st.error("The key 'mysql' does not exist in the secrets.")
+except Exception as e:
+    st.error(f"An unexpected error occurred: {e}")
+
 # Koneksi ke database menggunakan secrets
 try:
-    mysql_secrets = st.secrets["mysql"]
     db_connection_str = (
         f"{mysql_secrets['dialect']}+{mysql_secrets['driver']}://"
         f"{mysql_secrets['DB_USER']}:{mysql_secrets['DB_PASSWORD']}@"
@@ -23,6 +33,7 @@ try:
         f"{mysql_secrets['DB_NAME']}"
     )
     db_connection = create_engine(db_connection_str)
+    st.write("Database connection established successfully!")
 except Exception as e:
     st.error(f"Error connecting to the database: {e}")
 
