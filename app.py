@@ -13,29 +13,40 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Debugging steps
-try:
-    st.write("Attempting to load secrets...")
-    mysql_secrets = st.secrets["mysql"]
-    st.write("Secrets loaded successfully!")
-    st.write(mysql_secrets)
-except KeyError:
-    st.error("The key 'mysql' does not exist in the secrets.")
-except Exception as e:
-    st.error(f"An unexpected error occurred: {e}")
+# Ambil informasi dari secrets
+DB_HOST = mysql_secrets["DB_HOST"]
+DB_PORT = mysql_secrets["DB_PORT"]
+DB_USER = mysql_secrets["DB_USER"]
+DB_PASSWORD = mysql_secrets["DB_PASSWORD"]
+DB_NAME = mysql_secrets["DB_NAME"]
 
-# Koneksi ke database menggunakan secrets
+# Buat koneksi ke database
 try:
-    db_connection_str = (
-        f"{mysql_secrets['dialect']}+{mysql_secrets['driver']}://"
-        f"{mysql_secrets['DB_USER']}:{mysql_secrets['DB_PASSWORD']}@"
-        f"{mysql_secrets['DB_HOST']}:{mysql_secrets['DB_PORT']}/"
-        f"{mysql_secrets['DB_NAME']}"
+    db_connection = pymysql.connect(
+        host=DB_HOST,
+        port=int(DB_PORT),
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
     )
-    db_connection = create_engine(db_connection_str)
-    st.write("Database connection established successfully!")
+
+    # Sekarang Anda memiliki koneksi database yang siap digunakan
+    # Lakukan operasi database seperti menjalankan query di sini
+
+    # Contoh menjalankan query
+    with db_connection.cursor() as cursor:
+        sql_query = "SELECT * FROM nama_tabel;"
+        cursor.execute(sql_query)
+        result = cursor.fetchall()
+        print(result)
+
 except Exception as e:
-    st.error(f"Error connecting to the database: {e}")
+    print(f"Error connecting to the database or executing query: {str(e)}")
+finally:
+    if 'db_connection' in locals() or 'db_connection' in globals():
+        db_connection.close()  # pastikan untuk selalu menutup koneksi setelah selesai
 
 # Fungsi untuk mengambil data dari database
 def get_data(query):
