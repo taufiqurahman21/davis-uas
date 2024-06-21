@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from sqlalchemy import create_engine
 from numerize.numerize import numerize
+import mysql.connector
 import re
 
 # Konfigurasi halaman
@@ -14,40 +15,20 @@ st.set_page_config(
 )
 
 # Ambil informasi dari secrets
-mysql_secrets = st.secrets["mysql"]
-
-# Ambil informasi dari secrets
-DB_HOST = mysql_secrets["DB_HOST"]
-DB_PORT = mysql_secrets["DB_PORT"]
-DB_USER = mysql_secrets["DB_USER"]
-DB_PASSWORD = mysql_secrets["DB_PASSWORD"]
-DB_NAME = mysql_secrets["DB_NAME"]
-
-# Buat koneksi ke database
 try:
-    db_connection = pymysql.connect(
-        host=DB_HOST,
-        port=int(DB_PORT),
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor
+    conn = mysql.connector.connect(
+        host=st.secrets["DB_HOST"],
+        port=st.secrets["DB_PORT"],
+        user=st.secrets["DB_USER"],
+        passwd=st.secrets["DB_PASSWORD"],
+        database=st.secrets["DB_NAME"]  # perbaiki ke 'database' daripada 'db'
     )
-
-    # Sekarang Anda memiliki koneksi database yang siap digunakan
-    # Lakukan operasi database seperti menjalankan query di sini
-
-    # Contoh menjalankan query
-    with db_connection.cursor() as cursor:
-        sql_query = "SELECT * FROM nama_tabel;"
-        cursor.execute(sql_query)
-        result = cursor.fetchall()
-        print(result)
-
+    # Simpan koneksi sebagai variabel global
+    db_connection = conn
 except Exception as e:
     print(f"Error connecting to the database or executing query: {str(e)}")
 finally:
+    # Periksa apakah koneksi ada sebelum menutup
     if 'db_connection' in locals() or 'db_connection' in globals():
         db_connection.close()  # pastikan untuk selalu menutup koneksi setelah selesai
 
